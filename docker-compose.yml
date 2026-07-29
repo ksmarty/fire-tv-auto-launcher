@@ -1,0 +1,8 @@
+services:
+  fire-tv-auto-launcher:
+    image: ghcr.io/ksmarty/fire-tv-auto-launcher:latest
+    container_name: fire-tv-auto-launcher
+    restart: unless-stopped
+    environment:
+      - FIRE_IP=192.168.1.50
+    network_mode: host
