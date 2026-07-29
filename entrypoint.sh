@@ -14,7 +14,32 @@ log() {
   echo "$(date '+%Y-%m-%d %H:%M:%S'): $1" | tee -a "$LOG_FILE"
 }
 
+wait_for_authorization() {
+  log "Waiting for ADB authorization on Fire TV..."
+  log ">>> Look at your Fire TV and select 'Allow' if prompted <<<"
+
+  while true; do
+    $ADB_PATH connect "$FIRE_IP" >/dev/null 2>&1
+    STATUS=$($ADB_PATH get-state "$FIRE_IP" 2>/dev/null || true)
+
+    case "$STATUS" in
+      device)
+        log "Device authorized"
+        return 0
+        ;;
+      unauthorized)
+        log "Waiting for you to approve on Fire TV..."
+        sleep 5
+        ;;
+      *)
+        sleep 10
+        ;;
+    esac
+  done
+}
+
 log "Starting Wolf Launcher monitor (target: $FIRE_IP)"
+wait_for_authorization
 
 while true; do
   $ADB_PATH connect "$FIRE_IP" >/dev/null 2>&1
